@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduNova — Apply Now</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ═══ RESET & ROOT ══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06060f;--surface:#0d0d1c;--card:#131325;--card2:#1a1a30;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --accent:#7c3aed;--accent2:#a78bfa;--cyan:#22d3ee;
+  --green:#10b981;--gold:#f59e0b;--red:#ef4444;
+  --text:#eeeeff;--muted:#7070a0;--muted2:#9090c0;
+  --grad:linear-gradient(135deg,#7c3aed 0%,#22d3ee 100%);
+  --grad-gold:linear-gradient(135deg,#f59e0b,#ef4444);
+  --r:14px;--r2:20px;
+  --shadow:0 24px 64px rgba(124,58,237,.18);
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--accent) var(--surface)}
+html::-webkit-scrollbar{width:5px}html::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;min-height:100vh}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1}
+p{line-height:1.78;color:var(--muted)}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+
+/* ═══ CURSOR ════════════════════════════════════════════════ */
+.c-ring,.c-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+.c-ring{width:38px;height:38px;border:1.5px solid var(--accent2);opacity:.55;transition:transform .15s var(--ease),opacity .3s}
+.c-dot{width:7px;height:7px;background:var(--accent2);transition:transform .08s}
+body:not(:hover) .c-ring,.body:not(:hover) .c-dot{opacity:0}
+
+/* ═══ PARTICLES CANVAS ══════════════════════════════════════ */
+#pCanvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none;opacity:.3}
+
+/* ═══ SCROLL PROGRESS ══════════════════════════════════════ */
+#spBar{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:300;width:0%;transition:width .08s}
+
+/* ═══ NAVBAR ════════════════════════════════════════════════ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;transition:background .4s,backdrop-filter .4s,box-shadow .4s}
+.nav.stuck{background:rgba(6,6,15,.9);backdrop-filter:blur(22px);box-shadow:0 1px 0 var(--border)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{font-size:.87rem;color:var(--muted2);font-weight:500;position:relative;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--grad);transition:width .3s var(--ease)}
+.nav-links a:hover{color:var(--text)}.nav-links a:hover::after{width:100%}
+.nav-btn{padding:.55rem 1.5rem;background:var(--grad);border:none;border-radius:50px;color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:.84rem;cursor:none;transition:transform .3s,box-shadow .3s}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(124,58,237,.42)}
+
+/* ═══ HERO ══════════════════════════════════════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 5rem;position:relative;overflow:hidden;z-index:1}
+
+/* grid lines */
+.h-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(124,58,237,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.055) 1px,transparent 1px);background-size:58px 58px;animation:gridDrift 20s linear infinite;z-index:0}
+@keyframes gridDrift{to{background-position:58px 58px}}
+
+/* radial glow */
+.h-glow{position:absolute;width:800px;height:800px;background:radial-gradient(ellipse,rgba(124,58,237,.16) 0%,transparent 68%);top:50%;left:50%;transform:translate(-50%,-50%);animation:glowBreath 5s ease-in-out infinite;z-index:0}
+@keyframes glowBreath{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}}
+
+/* floating orbs */
+.orb{position:absolute;border-radius:50%;opacity:.1;animation:orbFloat 9s ease-in-out infinite;z-index:0}
+.o1{width:200px;height:200px;background:var(--accent);top:12%;left:6%;animation-duration:10s}
+.o2{width:130px;height:130px;background:var(--cyan);top:18%;right:8%;animation-duration:8s;animation-delay:-3s}
+.o3{width:90px;height:90px;background:var(--gold);bottom:22%;left:12%;animation-duration:12s;animation-delay:-5s}
+.o4{width:170px;height:170px;background:var(--accent2);bottom:16%;right:6%;animation-duration:9s;animation-delay:-1.5s}
+@keyframes orbFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-32px) rotate(180deg)}}
+
+.hero-inner{position:relative;z-index:2}
+.h-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.1rem;background:rgba(124,58,237,.14);border:1px solid rgba(124,58,237,.32);border-radius:50px;font-size:.78rem;color:var(--accent2);font-weight:500;letter-spacing:.05em;margin-bottom:1.8rem;animation:fadeUp .8s both}
+
+.h-title{font-size:clamp(3.2rem,8.5vw,6.8rem);font-weight:900;letter-spacing:-.03em;line-height:1.0;animation:fadeUp .8s .12s both;margin-bottom:1.4rem}
+.h-title .grd{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.h-title .grd2{background:var(--grad-gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.h-sub{font-size:1.08rem;max-width:580px;margin:0 auto 2.5rem;animation:fadeUp .8s .22s both;color:var(--muted2)}
+.h-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .32s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+
+.btn-p{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;background:var(--grad);border:none;border-radius:50px;color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:.92rem;cursor:none;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.btn-p::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.14);opacity:0;transition:opacity .3s}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(124,58,237,.42)}.btn-p:hover::before{opacity:1}
+.btn-g{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;background:transparent;border:1.5px solid var(--border2);border-radius:50px;color:var(--text);font-family:'Outfit',sans-serif;font-weight:500;font-size:.92rem;cursor:none;transition:border-color .3s,background .3s,transform .3s}
+.btn-g:hover{border-color:var(--accent2);background:rgba(124,58,237,.1);transform:translateY(-2px)}
+
+/* stats strip */
+.h-stats{display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;margin-top:5rem;padding:1.8rem 2.5rem;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(12px);animation:fadeUp .8s .45s both;position:relative;z-index:2}
+.stat h3{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat p{font-size:.74rem;color:var(--muted);margin-top:.2rem;letter-spacing:.04em;text-transform:uppercase}
+
+/* scroll hint */
+.scr-hint{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;z-index:2;animation:scrBob 2s ease-in-out infinite}
+.scr-line{width:1.5px;height:52px;background:linear-gradient(to bottom,var(--accent2),transparent)}
+.scr-hint span{font-size:.62rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase}
+@keyframes scrBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(9px)}}
+
+/* ═══ SECTIONS ══════════════════════════════════════════════ */
+.sec{padding:8rem 0;position:relative}
+.wrap{max-width:1180px;margin:0 auto;padding:0 2rem}
+.s-tag{font-size:.7rem;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--accent2);margin-bottom:.8rem}
+.s-title{font-size:clamp(2rem,4vw,3.4rem);margin-bottom:.9rem}
+.s-sub{max-width:600px;margin-bottom:3rem;font-size:1rem;color:var(--muted2)}
+
+/* ═══ SCROLL REVEAL ════════════════════════════════════════ */
+.rv{opacity:0;transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.rv-up{transform:translateY(52px)}.rv-left{transform:translateX(-52px)}.rv-right{transform:translateX(52px)}
+.rv.in{opacity:1;transform:translate(0)}
+
+/* ═══ FEATURES ══════════════════════════════════════════════ */
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.3rem}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;position:relative;overflow:hidden;transition:transform .38s var(--ease),box-shadow .38s,border-color .38s}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+.feat:hover{transform:translateY(-7px) perspective(800px) rotateX(2deg);box-shadow:var(--shadow);border-color:rgba(124,58,237,.28)}
+.feat:hover::before{transform:scaleX(1)}
+.f-ico{font-size:2.2rem;margin-bottom:1.1rem}
+.feat h4{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;margin-bottom:.5rem;color:var(--text)}
+.feat p{font-size:.86rem}
+
+/* ═══ COURSES ══════════════════════════════════════════════ */
+.courses{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.3rem}
+.course{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s;position:relative;overflow:hidden}
+.course::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(34,211,238,.04));opacity:0;transition:opacity .4s}
+.course:hover{transform:translateY(-7px);box-shadow:var(--shadow);border-color:rgba(124,58,237,.28)}
+.course:hover::after{opacity:1}
+.c-ico{font-size:2.3rem;margin-bottom:1rem}
+.course h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;margin-bottom:.5rem;color:var(--text)}
+.c-tags{display:flex;gap:.5rem;margin:.9rem 0}
+.c-tag{font-size:.7rem;padding:.28rem .75rem;border-radius:50px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.22);color:var(--accent2)}
+.c-link{font-size:.84rem;font-weight:600;color:var(--accent2);transition:color .3s,gap .3s;display:inline-flex;align-items:center;gap:.3rem}
+.c-link:hover{color:var(--text)}
+
+/* ═══ REGISTRATION FORM ════════════════════════════════════ */
+.reg-bg{background:linear-gradient(160deg,#0e0625 0%,#070713 55%,#040d18 100%)}
+
+.form-card{background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.085);border-radius:24px;padding:2.8rem;backdrop-filter:blur(22px);box-shadow:0 48px 120px rgba(0,0,0,.45);max-width:850px;margin:0 auto}
+
+/* step indicator */
+.steps{display:flex;align-items:center;justify-content:center;margin-bottom:2.8rem;gap:0}
+.st{display:flex;align-items:center;gap:.55rem;font-size:.82rem;font-weight:500;color:var(--muted);white-space:nowrap;transition:color .4s}
+.st span{width:32px;height:32px;border-radius:50%;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:700;color:var(--muted);transition:all .4s}
+.st.cur{color:var(--text)}.st.cur span{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.22)}
+.st.done span{background:var(--green);border-color:var(--green);color:#fff}
+.st-line{flex:1;height:1.5px;background:var(--border);margin:0 .85rem;max-width:75px;transition:background .4s}
+.st.done~.st-line,.st.cur~.st-line{background:rgba(124,58,237,.3)}
+
+/* pages */
+.fp{display:none;animation:pageIn .4s var(--ease)}
+.fp.on{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+
+/* form grid */
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;margin-bottom:1.3rem}
+.fg{display:flex;flex-direction:column;gap:.42rem}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:.82rem;font-weight:500;color:var(--text)}
+.fg label em{color:var(--red);font-style:normal}
+.fg input,.fg select,.fg textarea{background:rgba(255,255,255,.042);border:1.5px solid var(--border2);border-radius:10px;padding:.8rem 1rem;color:var(--text);font-family:'Outfit',sans-serif;font-size:.91rem;outline:none;resize:vertical;transition:border-color .3s,box-shadow .3s,background .3s;cursor:auto;-webkit-appearance:none}
+.fg input::placeholder,.fg textarea::placeholder{color:rgba(255,255,255,.17)}
+.fg select{cursor:none}.fg select option{background:var(--card2);color:var(--text)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3.5px rgba(124,58,237,.16);background:rgba(255,255,255,.058)}
+.fg input.bad,.fg select.bad,.fg textarea.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.14);animation:shake .3s}
+.fg input.good{border-color:var(--green)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+.em{font-size:.72rem;color:var(--red);min-height:.85rem}
+.pw-wrap{position:relative}.pw-wrap input{width:100%;padding-right:3.2rem}
+.pw-eye{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:.88rem;line-height:1;padding:.2rem}
+.chk{display:flex;align-items:flex-start;gap:.7rem}
+.chk input[type="checkbox"]{accent-color:var(--accent);width:17px;height:17px;cursor:pointer;flex-shrink:0;margin-top:2px}
+.chk label{font-size:.85rem;color:var(--muted2);cursor:pointer;line-height:1.6}
+.chk a{color:var(--accent2);transition:color .3s}.chk a:hover{color:var(--text)}
+
+/* nav buttons */
+.fn-row{display:flex;justify-content:space-between;align-items:center;margin-top:2.2rem;gap:1rem}
+
+/* ═══ SUCCESS MODAL ════════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(14px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:26px;max-width:560px;width:100%;overflow:hidden;animation:modalIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.m-head{background:linear-gradient(150deg,#1e0b48,#0a1c36);padding:2.5rem 2rem 2rem;text-align:center;position:relative}
+.m-head::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:38px;background:var(--card);clip-path:ellipse(54% 100% at 50% 100%)}
+.chk-wrap{width:72px;height:72px;margin:0 auto 1.2rem}
+.chk-svg{width:100%;height:100%}
+.chk-circle{stroke:#10b981;stroke-width:2;stroke-dasharray:166;stroke-dashoffset:166;animation:dc .9s ease forwards .2s}
+.chk-tick{stroke:#10b981;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48;stroke-dashoffset:48;animation:dt .5s ease forwards 1.05s}
+@keyframes dc{to{stroke-dashoffset:0}}@keyframes dt{to{stroke-dashoffset:0}}
+.m-head h2{color:#fff;font-size:1.9rem;margin-bottom:.45rem}
+.m-head p{color:#a5b4fc;font-size:.88rem}
+
+.m-body{padding:1.6rem 2rem 2rem}
+.app-id-row{display:flex;align-items:center;justify-content:center;gap:.8rem;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.28);border-radius:12px;padding:.88rem 1.5rem;margin-bottom:1.3rem}
+.ai-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.ai-val{font-family:'Courier New',monospace;font-size:1.15rem;font-weight:700;color:var(--accent2);letter-spacing:.06em}
+.cp-btn{background:transparent;border:1px solid var(--border2);border-radius:8px;padding:.32rem .48rem;color:var(--muted);cursor:pointer;line-height:1;transition:color .3s,border-color .3s;font-size:.85rem}
+.cp-btn:hover{color:var(--accent2);border-color:var(--accent2)}
+
+.info-g{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.3rem}
+.ii{background:rgba(255,255,255,.032);border:1px solid var(--border);border-radius:9px;padding:.7rem .95rem}
+.ii .il{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.22rem}
+.ii .iv{font-size:.9rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.tl-row{display:flex;align-items:center;margin-bottom:1.2rem}
+.tl-d{width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .4s}
+.tl-d.done{background:var(--green);border-color:var(--green);color:#fff}
+.tl-d.cur{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.22);animation:tlPulse 1.6s ease-in-out infinite}
+@keyframes tlPulse{0%,100%{box-shadow:0 0 0 4px rgba(124,58,237,.22)}50%{box-shadow:0 0 0 9px rgba(124,58,237,.08)}}
+.tl-line{flex:1;height:2px;background:var(--border);margin:0 .45rem .65rem}
+.tl-label{font-size:.62rem;color:var(--muted);white-space:nowrap;margin-top:.35rem;text-align:center;width:34px;flex-shrink:0}
+.tl-item{display:flex;flex-direction:column;align-items:center}
+.tl-item.done .tl-label,.tl-item.cur .tl-label{color:var(--text)}
+
+.m-note{text-align:center;font-size:.8rem;color:var(--muted);margin-bottom:1.3rem}
+.m-acts{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+.dl-btn{display:inline-flex;align-items:center;gap:.55rem;padding:.82rem 1.7rem;background:linear-gradient(135deg,#dc2626,#7c3aed);border:none;border-radius:50px;color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.dl-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,.4)}
+
+/* toast */
+.toast{position:fixed;bottom:2.2rem;left:50%;transform:translateX(-50%) translateY(24px);background:var(--green);color:#fff;padding:.58rem 1.5rem;border-radius:50px;font-size:.82rem;font-weight:600;opacity:0;transition:all .32s;z-index:600;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══ CONTACT ══════════════════════════════════════════════ */
+.c-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1.3rem}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2.2rem 1.6rem;text-align:center;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s}
+.cc:hover{transform:translateY(-7px);box-shadow:var(--shadow);border-color:rgba(124,58,237,.28)}
+.cc-ico{font-size:2.2rem;margin-bottom:.9rem}
+.cc h4{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;margin-bottom:.55rem}
+.cc p{font-size:.84rem}
+
+/* ═══ FOOTER ════════════════════════════════════════════════ */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:3rem 2rem}
+.ft-inner{max-width:1180px;margin:0 auto}
+.ft-top{text-align:center;margin-bottom:2rem}
+.ft-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ft-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-links{display:flex;gap:2rem}.ft-links a{font-size:.82rem;color:var(--muted);transition:color .3s}.ft-links a:hover{color:var(--text)}
+
+/* ═══ RESPONSIVE ════════════════════════════════════════════ */
+@media(max-width:680px){
+  .nav-links{display:none}.fg-row{grid-template-columns:1fr}.info-g{grid-template-columns:1fr}
+  .h-stats{gap:1.5rem;padding:1.2rem 1rem}.form-card{padding:1.8rem 1.2rem}
+  .m-body{padding:1.2rem 1.2rem 1.6rem}.ft-bottom{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="c-ring" id="cring"></div>
+<div class="c-dot"  id="cdot"></div>
+<!-- Scroll bar -->
+<div id="spBar"></div>
+<!-- Particle canvas -->
+<canvas id="pCanvas"></canvas>
+
+<!-- ══ NAVBAR ═══════════════════════════════════════════════ -->
+<nav class="nav" id="mainNav">
+  <div class="logo">EduNova</div>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#register">Apply</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="/login" class="nav-btn">Student Login</a>
+</nav>
+
+<!-- ══ HERO ═════════════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="h-grid"></div>
+  <div class="h-glow"></div>
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="orb o3"></div><div class="orb o4"></div>
+
+  <div class="hero-inner">
+    <div class="h-badge">🎓 Admissions 2025–26 Now Open</div>
+    <h1 class="h-title">
+      Shape Your<br>
+      <span class="grd">Brilliant</span><br>
+      <span class="grd2">Future</span>
+    </h1>
+    <p class="h-sub">EduNova College — where world-class faculty, cutting-edge research labs and a 96% placement record create careers worth living for.</p>
+    <div class="h-btns">
+      <a href="#register" class="btn-p">Apply Now →</a>
+      <a href="#about"    class="btn-g">Learn More</a>
+    </div>
+  </div>
+
+  <div class="h-stats rv rv-up">
+    <div class="stat"><h3 class="cnt" data-t="12000">0</h3><p>Students</p></div>
+    <div class="stat"><h3 class="cnt" data-t="96">0</h3><p>% Placement</p></div>
+    <div class="stat"><h3 class="cnt" data-t="80">0</h3><p>Programs</p></div>
+    <div class="stat"><h3 class="cnt" data-t="45">0</h3><p>Years Legacy</p></div>
+  </div>
+  <div class="scr-hint"><div class="scr-line"></div><span>Scroll</span></div>
+</section>
+
+<!-- ══ ABOUT ════════════════════════════════════════════════ -->
+<section class="sec" id="about" style="background:var(--surface)">
+  <div class="wrap">
+    <div class="s-tag rv rv-up">Who We Are</div>
+    <h2 class="s-title rv rv-up">A Legacy of <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Excellence</span></h2>
+    <p class="s-sub rv rv-up">EduNova has shaped brilliant minds since 1980. NAAC A++ accredited, 500+ industry partners and cutting-edge infrastructure make us the first choice for ambitious students.</p>
+    <div class="feats">
+      <div class="feat rv rv-up"><div class="f-ico">🏛️</div><h4>Heritage Campus</h4><p>200-acre campus in Chennai with fully modern academic and residential facilities.</p></div>
+      <div class="feat rv rv-up" style="--delay:.06s"><div class="f-ico">🔬</div><h4>Research Labs</h4><p>25+ advanced labs funded by DRDO, ISRO and global technology firms.</p></div>
+      <div class="feat rv rv-up" style="--delay:.12s"><div class="f-ico">🌐</div><h4>Global Network</h4><p>Active partnerships with 80+ universities across 30 countries worldwide.</p></div>
+      <div class="feat rv rv-up" style="--delay:.18s"><div class="f-ico">🚀</div><h4>Startup Incubator</h4><p>120+ student startups funded, with seed grants up to ₹50 lakh.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ COURSES ═══════════════════════════════════════════════ -->
+<section class="sec" id="courses">
+  <div class="wrap">
+    <div class="s-tag rv rv-up">Programs</div>
+    <h2 class="s-title rv rv-up">Find Your <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Program</span></h2>
+    <p class="s-sub rv rv-up">Explore our undergraduate, postgraduate and research programs designed for tomorrow's industry leaders.</p>
+    <div class="courses">
+      <div class="course rv rv-up"><div class="c-ico">💻</div><h3>Computer Science & Engineering</h3><p>AI, Machine Learning, Cloud Computing, Cybersecurity and more.</p><div class="c-tags"><span class="c-tag">4 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+      <div class="course rv rv-up" style="--delay:.07s"><div class="c-ico">⚙️</div><h3>Mechanical Engineering</h3><p>Robotics, Automotive Technology, Manufacturing Systems.</p><div class="c-tags"><span class="c-tag">4 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+      <div class="course rv rv-up" style="--delay:.14s"><div class="c-ico">📊</div><h3>Business Administration</h3><p>Finance, Marketing, Entrepreneurship, Global Business.</p><div class="c-tags"><span class="c-tag">3 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+      <div class="course rv rv-up" style="--delay:.21s"><div class="c-ico">🎨</div><h3>Design & Media Arts</h3><p>UI/UX Design, Animation, Visual Communication.</p><div class="c-tags"><span class="c-tag">3 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+      <div class="course rv rv-up" style="--delay:.28s"><div class="c-ico">🧬</div><h3>Biotechnology</h3><p>Genomics, Bioinformatics, Pharmaceutical Sciences.</p><div class="c-tags"><span class="c-tag">4 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+      <div class="course rv rv-up" style="--delay:.35s"><div class="c-ico">⚡</div><h3>Electrical Engineering</h3><p>Power Systems, IoT, Embedded Electronics.</p><div class="c-tags"><span class="c-tag">4 Years</span><span class="c-tag">UG</span></div><a href="#register" class="c-link">Apply Now →</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REGISTRATION ══════════════════════════════════════════ -->
+<section class="sec reg-bg" id="register">
+  <div class="wrap">
+    <div class="s-tag rv rv-up" style="color:var(--accent2)">Admissions Open</div>
+    <h2 class="s-title rv rv-up" style="color:#fff">Start Your <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Application</span></h2>
+    <p class="s-sub rv rv-up" style="color:#c4b5fd">Fill in all three steps below. Our admissions team will contact you within 48 hours.</p>
+
+    <div class="form-card rv rv-up">
+      <!-- Step indicators -->
+      <div class="steps">
+        <div class="st cur" id="st1"><span>1</span> Personal</div>
+        <div class="st-line"></div>
+        <div class="st" id="st2"><span>2</span> Academic</div>
+        <div class="st-line"></div>
+        <div class="st" id="st3"><span>3</span> Program</div>
+      </div>
+
+      <form id="regForm" novalidate>
+
+        <!-- PAGE 1: Personal -->
+        <div class="fp on" id="pg1">
+          <div class="fg-row">
+            <div class="fg"><label>First Name <em>*</em></label><input type="text" id="fn" placeholder="Arjun"/><span class="em" id="e-fn"></span></div>
+            <div class="fg"><label>Last Name <em>*</em></label><input type="text" id="ln" placeholder="Sharma"/><span class="em" id="e-ln"></span></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Email Address <em>*</em></label><input type="email" id="em" placeholder="arjun@email.com"/><span class="em" id="e-em"></span></div>
+            <div class="fg"><label>Phone Number <em>*</em></label><input type="tel" id="ph" placeholder="+91 98765 43210"/><span class="em" id="e-ph"></span></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Date of Birth <em>*</em></label><input type="date" id="dob"/><span class="em" id="e-dob"></span></div>
+            <div class="fg"><label>Gender <em>*</em></label>
+              <select id="gn"><option value="">-- Select --</option><option>Male</option><option>Female</option><option>Non-binary</option><option>Prefer not to say</option></select>
+              <span class="em" id="e-gn"></span>
+            </div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Password <em>*</em></label>
+              <div class="pw-wrap"><input type="password" id="pw" placeholder="Minimum 8 characters"/><button type="button" class="pw-eye" id="e1">👁</button></div>
+              <span class="em" id="e-pw"></span>
+            </div>
+            <div class="fg"><label>Confirm Password <em>*</em></label>
+              <div class="pw-wrap"><input type="password" id="cpw" placeholder="Re-enter password"/><button type="button" class="pw-eye" id="e2">👁</button></div>
+              <span class="em" id="e-cpw"></span>
+            </div>
+          </div>
+          <div class="fg full" style="margin-bottom:0"><label>Residential Address <em>*</em></label><textarea id="addr" rows="2" placeholder="Street, City, State, PIN Code"></textarea><span class="em" id="e-addr"></span></div>
+        </div>
+
+        <!-- PAGE 2: Academic -->
+        <div class="fp" id="pg2">
+          <div class="fg-row">
+            <div class="fg"><label>10th School Name <em>*</em></label><input type="text" id="s10" placeholder="School name"/><span class="em" id="e-s10"></span></div>
+            <div class="fg"><label>10th Percentage <em>*</em></label><input type="number" id="m10" placeholder="e.g. 92.5" min="0" max="100"/><span class="em" id="e-m10"></span></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>12th College Name <em>*</em></label><input type="text" id="s12" placeholder="College name"/><span class="em" id="e-s12"></span></div>
+            <div class="fg"><label>12th Percentage <em>*</em></label><input type="number" id="m12" placeholder="e.g. 88.0" min="0" max="100"/><span class="em" id="e-m12"></span></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Entrance Exam</label>
+              <select id="exam"><option value="">None</option><option>JEE Main</option><option>JEE Advanced</option><option>NEET</option><option>CAT</option><option>CLAT</option></select>
+            </div>
+            <div class="fg"><label>Score / Rank</label><input type="text" id="score" placeholder="e.g. 95 percentile or Rank 1200"/></div>
+          </div>
+          <div class="fg full" style="margin-bottom:0"><label>Achievements / Extra-Curriculars</label><textarea id="ach" rows="3" placeholder="Sports, awards, club memberships, competitions..."></textarea></div>
+        </div>
+
+        <!-- PAGE 3: Program -->
+        <div class="fp" id="pg3">
+          <div class="fg-row">
+            <div class="fg"><label>Preferred Program <em>*</em></label>
+              <select id="prog">
+                <option value="">-- Select Program --</option>
+                <option>Computer Science and Engineering</option>
+                <option>Mechanical Engineering</option>
+                <option>Business Administration</option>
+                <option>Design and Media Arts</option>
+                <option>Biotechnology</option>
+                <option>Electrical Engineering</option>
+              </select>
+              <span class="em" id="e-prog"></span>
+            </div>
+            <div class="fg"><label>Degree Level <em>*</em></label>
+              <select id="deg">
+                <option value="">-- Select --</option>
+                <option>Bachelor's (UG)</option>
+                <option>Master's (PG)</option>
+                <option>PhD</option>
+                <option>Diploma</option>
+              </select>
+              <span class="em" id="e-deg"></span>
+            </div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Hostel Required</label>
+              <select id="hostel"><option value="">-- Select --</option><option>Yes - On Campus</option><option>No - Day Scholar</option></select>
+            </div>
+            <div class="fg"><label>How did you hear about us?</label>
+              <select id="src"><option value="">-- Select --</option><option>Social Media</option><option>Friend / Family</option><option>School Counselor</option><option>Newspaper / TV</option><option>Website</option></select>
+            </div>
+          </div>
+          <div class="fg full"><label>Statement of Purpose <em>*</em></label><textarea id="sop" rows="5" placeholder="Tell us why you want to join EduNova, your career goals, and how this program aligns with your ambitions. (Minimum 50 characters)"></textarea><span class="em" id="e-sop"></span></div>
+          <div class="chk full">
+            <input type="checkbox" id="agree"/>
+            <label for="agree">I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a> of EduNova College and confirm all information provided is accurate.</label>
+          </div>
+          <span class="em" id="e-agree" style="margin-top:.3rem;display:block"></span>
+        </div>
+
+        <div class="fn-row">
+          <button type="button" class="btn-g" id="prevBtn" style="display:none">← Back</button>
+          <button type="button" class="btn-p" id="nextBtn">Next Step →</button>
+          <button type="submit"  class="btn-p" id="subBtn"  style="display:none">Submit Application 🎓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ═══════════════════════════════════════════════ -->
+<section class="sec" id="contact" style="background:var(--surface)">
+  <div class="wrap">
+    <div class="s-tag rv rv-up">Reach Us</div>
+    <h2 class="s-title rv rv-up">Get In <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Touch</span></h2>
+    <div class="c-grid">
+      <div class="cc rv rv-up"><div class="cc-ico">📍</div><h4>Location</h4><p>123 Education Lane,<br>Chennai – 600001, Tamil Nadu</p></div>
+      <div class="cc rv rv-up" style="--delay:.07s"><div class="cc-ico">📞</div><h4>Phone</h4><p>+91 44 2222 0000<br>Toll Free: 1800-EDUNOVA</p></div>
+      <div class="cc rv rv-up" style="--delay:.14s"><div class="cc-ico">✉️</div><h4>Email</h4><p>admissions@edunova.edu<br>info@edunova.edu</p></div>
+      <div class="cc rv rv-up" style="--delay:.21s"><div class="cc-ico">🕒</div><h4>Office Hours</h4><p>Mon – Fri: 9 AM – 5 PM<br>Saturday: 9 AM – 1 PM</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
+<footer>
+  <div class="ft-inner">
+    <div class="ft-top">
+      <div class="ft-logo">EduNova</div>
+      <p style="margin-top:.5rem;font-size:.88rem">Empowering minds since 1980.</p>
+    </div>
+    <div class="ft-bottom">
+      <p style="font-size:.82rem;color:var(--muted)">© 2025 EduNova College. All rights reserved.</p>
+      <div class="ft-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ SUCCESS MODAL ════════════════════════════════════════ -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="m-head">
+      <div class="chk-wrap">
+        <svg viewBox="0 0 52 52" class="chk-svg">
+          <circle class="chk-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="chk-tick" fill="none" d="M14 27 L22 35 L38 17"/>
+        </svg>
+      </div>
+      <h2>Application Submitted!</h2>
+      <p>Congratulations — you are one step closer to EduNova.</p>
+    </div>
+    <div class="m-body">
+      <div class="app-id-row">
+        <div><div class="ai-lbl">Application ID</div><div class="ai-val" id="modalId">EN-2025-00000</div></div>
+        <button class="cp-btn" id="cpBtn" title="Copy ID">📋</button>
+      </div>
+      <div class="info-g" id="infoG"></div>
+      <div class="tl-row">
+        <div class="tl-item done"><div class="tl-d">✓</div><div class="tl-label">Received</div></div>
+        <div class="tl-line"></div>
+        <div class="tl-item cur"><div class="tl-d">2</div><div class="tl-label">Review</div></div>
+        <div class="tl-line"></div>
+        <div class="tl-item"><div class="tl-d">3</div><div class="tl-label">Interview</div></div>
+        <div class="tl-line"></div>
+        <div class="tl-item"><div class="tl-d">4</div><div class="tl-label">Decision</div></div>
+      </div>
+      <p class="m-note">📧 A confirmation email will be sent within 24 hours.</p>
+      <div class="m-acts">
+        <button class="dl-btn" id="dlBtn">⬇ Download PDF Receipt</button>
+        <a href="/login" class="btn-p" style="cursor:none">Go to Login →</a>
+        <button class="btn-g" onclick="closeModal()" style="cursor:none">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ JAVASCRIPT ════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Cursor ─────────────────────────────────────────────── */
+const ring=document.getElementById('cring'),dot=document.getElementById('cdot');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+document.querySelectorAll('a,button,input,select,textarea,.feat,.course,.cc').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.9)';ring.style.opacity='1';});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.opacity='.55';});
+});
+
+/* ── Scroll progress ────────────────────────────────────── */
+const spBar=document.getElementById('spBar');
+window.addEventListener('scroll',()=>{spBar.style.width=(window.scrollY/(document.body.scrollHeight-innerHeight)*100)+'%';},{ passive:true });
+
+/* ── Navbar stick ────────────────────────────────────────── */
+const nav=document.getElementById('mainNav');
+window.addEventListener('scroll',()=>nav.classList.toggle('stuck',window.scrollY>70),{passive:true});
+
+/* ── Particle canvas ─────────────────────────────────────── */
+(()=>{
+  const cv=document.getElementById('pCanvas'),ctx=cv.getContext('2d');
+  let W=cv.width=innerWidth,H=cv.height=innerHeight;
+  window.addEventListener('resize',()=>{W=cv.width=innerWidth;H=cv.height=innerHeight;});
+  const pts=Array.from({length:85},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.9+.4,dx:(Math.random()-.5)*.38,dy:(Math.random()-.5)*.38,a:Math.random()*.45+.15,c:['#7c3aed','#22d3ee','#a78bfa'][Math.floor(Math.random()*3)]}));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;});
+    ctx.globalAlpha=1;
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<115){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(124,58,237,'+(1-d/115)*.12+')';ctx.lineWidth=.4;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Scroll reveal ───────────────────────────────────────── */
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.style.transitionDelay=e.target.style.getPropertyValue('--delay')||'0s';e.target.classList.add('in');}});
+},{threshold:.14,rootMargin:'0px 0px -55px 0px'});
+document.querySelectorAll('.rv').forEach(el=>revObs.observe(el));
+
+/* ── Counters ────────────────────────────────────────────── */
+const cntObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target,t=+el.dataset.t,step=t/65;
+    let c=0;const tick=()=>{c+=step;el.textContent=c<t?Math.floor(c).toLocaleString():t.toLocaleString();if(c<t)requestAnimationFrame(tick);};tick();
+    cntObs.unobserve(el);
+  });
+},{threshold:.5});
+document.querySelectorAll('.cnt').forEach(el=>cntObs.observe(el));
+
+/* ── Password toggles ────────────────────────────────────── */
+document.getElementById('e1').onclick=()=>{const i=document.getElementById('pw');i.type=i.type==='password'?'text':'password';};
+document.getElementById('e2').onclick=()=>{const i=document.getElementById('cpw');i.type=i.type==='password'?'text':'password';};
+
+/* ── Multi-step form ─────────────────────────────────────── */
+let step=1;
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn'),subBtn=document.getElementById('subBtn');
+
+function goTo(s){
+  document.querySelectorAll('.fp').forEach((p,i)=>{p.classList.toggle('on',i+1===s);});
+  ['st1','st2','st3'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('cur','done');
+    if(i+1===s)el.classList.add('cur');
+    if(i+1<s)el.classList.add('done');
+  });
+  step=s;
+  prevBtn.style.display=s>1?'inline-flex':'none';
+  nextBtn.style.display=s<3?'inline-flex':'none';
+  subBtn.style.display=s===3?'inline-flex':'none';
+}
+nextBtn.addEventListener('click',()=>{if(validateStep(step))goTo(step+1);});
+prevBtn.addEventListener('click',()=>goTo(step-1));
+
+/* ── Validation helpers ──────────────────────────────────── */
+function setErr(id,eid,msg){const el=document.getElementById(id),e=document.getElementById(eid);if(!el||!e)return;el.classList.add('bad');el.classList.remove('good');e.textContent=msg;}
+function setOk(id,eid){const el=document.getElementById(id),e=document.getElementById(eid);if(!el||!e)return;el.classList.remove('bad');el.classList.add('good');e.textContent='';}
+
+function validateStep(s){
+  let ok=true;
+  if(s===1){
+    const fn=V('fn'),ln=V('ln'),em=V('em'),ph=V('ph'),dob=V('dob'),gn=V('gn'),addr=V('addr'),pw=V('pw'),cpw=V('cpw');
+    chk(!fn,'fn','e-fn','First name is required',ok);if(!fn)ok=false;else setOk('fn','e-fn');
+    chk(!ln,'ln','e-ln','Last name is required',ok);if(!ln)ok=false;else setOk('ln','e-ln');
+    if(!em||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){setErr('em','e-em','Valid email required');ok=false;}else setOk('em','e-em');
+    if(!ph||ph.replace(/\D/g,'').length<7){setErr('ph','e-ph','Valid phone required');ok=false;}else setOk('ph','e-ph');
+    if(!dob){setErr('dob','e-dob','Date of birth required');ok=false;}else setOk('dob','e-dob');
+    if(!gn){setErr('gn','e-gn','Please select gender');ok=false;}else setOk('gn','e-gn');
+    if(!addr){setErr('addr','e-addr','Address is required');ok=false;}else setOk('addr','e-addr');
+    if(!pw||pw.length<8){setErr('pw','e-pw','Minimum 8 characters');ok=false;}else setOk('pw','e-pw');
+    if(pw!==cpw){setErr('cpw','e-cpw','Passwords do not match');ok=false;}else setOk('cpw','e-cpw');
+  }
+  if(s===2){
+    const s10=V('s10'),m10=V('m10'),s12=V('s12'),m12=V('m12');
+    if(!s10){setErr('s10','e-s10','School name required');ok=false;}else setOk('s10','e-s10');
+    if(!m10||+m10<0||+m10>100){setErr('m10','e-m10','Enter valid % (0–100)');ok=false;}else setOk('m10','e-m10');
+    if(!s12){setErr('s12','e-s12','College name required');ok=false;}else setOk('s12','e-s12');
+    if(!m12||+m12<0||+m12>100){setErr('m12','e-m12','Enter valid % (0–100)');ok=false;}else setOk('m12','e-m12');
+  }
+  if(s===3){
+    const pr=V('prog'),dg=V('deg'),sp=V('sop'),ag=document.getElementById('agree').checked;
+    if(!pr){setErr('prog','e-prog','Select a program');ok=false;}else setOk('prog','e-prog');
+    if(!dg){setErr('deg','e-deg','Select degree level');ok=false;}else setOk('deg','e-deg');
+    if(!sp||sp.length<50){setErr('sop','e-sop','SOP must be at least 50 characters');ok=false;}else setOk('sop','e-sop');
+    if(!ag){document.getElementById('e-agree').textContent='You must agree to the terms';ok=false;}else document.getElementById('e-agree').textContent='';
+  }
+  return ok;
+}
+function V(id){const el=document.getElementById(id);return el?(el.value||'').trim():'';}
+function chk(cond,id,eid,msg){if(cond)setErr(id,eid,msg);}
+
+/* ── Global saved data (for PDF) ─────────────────────────── */
+let saved={};
+
+/* ── Form submit ─────────────────────────────────────────── */
+document.getElementById('regForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!validateStep(3))return;
+
+  saved={
+    firstName:V('fn'),lastName:V('ln'),email:V('em'),phone:V('ph'),
+    dob:V('dob'),gender:V('gn'),address:V('addr'),password:V('pw'),
+    school10:V('s10'),marks10:V('m10'),school12:V('s12'),marks12:V('m12'),
+    examType:V('exam')||'None',examScore:V('score')||'-',achievements:V('ach'),
+    program:V('prog'),degree:V('deg'),hostel:V('hostel')||'Not specified',
+    source:V('src')||'-',sop:V('sop'),
+    submittedAt:new Date().toLocaleString('en-IN',{dateStyle:'long',timeStyle:'short'})
+  };
+
+  subBtn.textContent='Submitting...';subBtn.disabled=true;
+
+  try{
+    const body=new URLSearchParams({
+      firstName:saved.firstName,lastName:saved.lastName,email:saved.email,phone:saved.phone,
+      dob:saved.dob,gender:saved.gender,address:saved.address,password:saved.password,
+      school10:saved.school10,marks10:saved.marks10,school12:saved.school12,marks12:saved.marks12,
+      examType:saved.examType,examScore:saved.examScore,achievements:saved.achievements,
+      program:saved.program,degree:saved.degree,hostel:saved.hostel,source:saved.source,sop:saved.sop
+    });
+    const res=await fetch('/register',{method:'POST',body});
+    const result=await res.json();
+    if(result.success){
+      saved.applicationId=result.application_id;
+      openModal(result.application_id);
+      fireworks();
+    }else{
+      alert('⚠ '+result.message);
+    }
+  }catch(err){
+    /* Demo mode — works without Flask running */
+    const aid='EN-'+new Date().getFullYear()+'-'+Math.floor(10000+Math.random()*90000);
+    saved.applicationId=aid;
+    openModal(aid);
+    fireworks();
+  }
+  subBtn.textContent='Submit Application 🎓';subBtn.disabled=false;
+});
+
+/* ── Modal open/close ─────────────────────────────────────── */
+function openModal(aid){
+  document.getElementById('modalId').textContent=aid;
+  document.getElementById('infoG').innerHTML=`
+    <div class="ii"><div class="il">Full Name</div><div class="iv">${saved.firstName} ${saved.lastName}</div></div>
+    <div class="ii"><div class="il">Email</div><div class="iv">${saved.email}</div></div>
+    <div class="ii"><div class="il">Program</div><div class="iv">${saved.program}</div></div>
+    <div class="ii"><div class="il">Degree</div><div class="iv">${saved.degree}</div></div>
+    <div class="ii"><div class="il">10th Marks</div><div class="iv">${saved.marks10}%</div></div>
+    <div class="ii"><div class="il">12th Marks</div><div class="iv">${saved.marks12}%</div></div>
+  `;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('cpBtn').onclick=()=>{navigator.clipboard.writeText(aid).then(()=>showToast('Application ID copied!'));};
+  document.getElementById('dlBtn').onclick=generatePDF;
+}
+function closeModal(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('regForm').reset();
+  document.querySelectorAll('.fp').forEach((p,i)=>p.classList.toggle('on',i===0));
+  goTo(1);
+}
+window.closeModal=closeModal;
+
+/* ── PDF Generation ──────────────────────────────────────── */
+function generatePDF(){
+  const btn=document.getElementById('dlBtn');
+  btn.textContent='Generating...';btn.disabled=true;
+  setTimeout(()=>{
+    try{
+      const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),d=saved;
+      // Background
+      doc.setFillColor(6,6,15);doc.rect(0,0,W,H,'F');
+      // Header
+      doc.setFillColor(26,10,60);doc.rect(0,0,W,52,'F');
+      doc.setDrawColor(124,58,237);doc.setLineWidth(1.5);doc.line(0,52,W,52);
+      // Logo circle
+      doc.setFillColor(124,58,237);doc.circle(22,26,10,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');doc.text('EN',22,30,{align:'center'});
+      // College name
+      doc.setFontSize(20);doc.text('EduNova College',37,22);
+      doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(167,139,250);
+      doc.text('NAAC A++ Accredited | Estd. 1980',37,30);
+      doc.text('admissions@edunova.edu  |  +91 44 2222 0000',37,37);
+      // Title right
+      doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(34,211,238);
+      doc.text('ADMISSION RECEIPT',W-13,22,{align:'right'});
+      doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(167,139,250);
+      doc.text('Academic Year 2025-26',W-13,30,{align:'right'});
+      doc.text('Date: '+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}),W-13,37,{align:'right'});
+      // App ID box
+      doc.setFillColor(30,10,70);doc.roundedRect(14,57,W-28,18,4,4,'F');
+      doc.setDrawColor(124,58,237);doc.setLineWidth(.5);doc.roundedRect(14,57,W-28,18,4,4,'S');
+      doc.setFontSize(6.5);doc.setTextColor(167,139,250);doc.text('APPLICATION ID',W/2,63,{align:'center'});
+      doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);doc.text(d.applicationId,W/2,71,{align:'center'});
+      // Status
+      doc.setFillColor(16,185,129);doc.roundedRect(W-49,58,33,8,2,2,'F');
+      doc.setFontSize(6.5);doc.text('STATUS: PENDING',W-32.5,63.5,{align:'center'});
+      // Sections
+      let y=84;
+      function sec(title,rows){
+        doc.setFillColor(20,20,40);doc.rect(14,y-4,W-28,10,'F');
+        doc.setDrawColor(124,58,237);doc.setLineWidth(.8);doc.line(14,y-4,14,y+6);
+        doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(167,139,250);doc.text(title.toUpperCase(),22,y+2.5);y+=12;
+        const cw=(W-28)/2;
+        for(let i=0;i<rows.length;i+=2){
+          const rh=13;
+          [[rows[i],0],[rows[i+1],1]].forEach(([f,idx])=>{
+            if(!f)return;const x=14+idx*cw;
+            doc.setFillColor(18,18,30);doc.rect(x,y,cw-1,rh,'F');doc.setDrawColor(40,40,60);doc.setLineWidth(.3);doc.rect(x,y,cw-1,rh,'S');
+            doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(120,120,180);doc.text(f[0],x+3,y+5);
+            doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(220,220,240);doc.text(String(f[1]||'-').substring(0,36),x+3,y+11);
+          });
+          y+=rh+1;
+        }
+        y+=5;
+      }
+      sec('Personal Information',[['Full Name',d.firstName+' '+d.lastName],['Date of Birth',d.dob],['Gender',d.gender],['Phone',d.phone],['Email',d.email],['Address',d.address.substring(0,38)]]);
+      sec('Academic Details',[['10th School',d.school10],['10th Marks',d.marks10+'%'],['12th College',d.school12],['12th Marks',d.marks12+'%'],['Entrance Exam',d.examType],['Score / Rank',d.examScore]]);
+      sec('Program Details',[['Program',d.program],['Degree',d.degree],['Hostel',d.hostel],['Heard From',d.source]]);
+      // SOP
+      doc.setFillColor(18,18,30);doc.roundedRect(14,y,W-28,26,3,3,'F');doc.setDrawColor(40,40,60);doc.setLineWidth(.3);doc.roundedRect(14,y,W-28,26,3,3,'S');
+      doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(120,120,180);doc.text('STATEMENT OF PURPOSE',18,y+6);
+      doc.setFontSize(7.5);doc.setTextColor(180,180,210);
+      const sl=doc.splitTextToSize(d.sop,W-34);doc.text(sl.slice(0,3),18,y+12);if(sl.length>3){doc.setTextColor(124,58,237);doc.text('...(see full SOP in portal)',18,y+23);}
+      y+=32;
+      // Submission
+      doc.setFillColor(10,40,28);doc.roundedRect(14,y,W-28,11,2.5,2.5,'F');doc.setDrawColor(16,185,129);doc.setLineWidth(.4);doc.roundedRect(14,y,W-28,11,2.5,2.5,'S');
+      doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(16,185,129);doc.text('Submitted: '+d.submittedAt,18,y+7.5);
+      doc.setTextColor(100,200,150);doc.text('Thank you for applying to EduNova College!',W-16,y+7.5,{align:'right'});
+      // Footer
+      const fy=H-18;doc.setDrawColor(40,40,60);doc.setLineWidth(.4);doc.line(14,fy,W-14,fy);
+      doc.setFontSize(6.5);doc.setTextColor(80,80,120);doc.text('Computer-generated receipt — no signature required.',W/2,fy+5,{align:'center'});
+      doc.text('EduNova College | NAAC A++ | Estd. 1980 | www.edunova.edu',W/2,fy+10,{align:'center'});
+      // Border
+      doc.setDrawColor(60,20,100);doc.setLineWidth(1);doc.rect(4,4,W-8,H-8,'S');
+      doc.save('EduNova_'+d.applicationId+'.pdf');
+    }catch(err){alert('PDF error: '+err.message);}
+    btn.textContent='⬇ Download PDF Receipt';btn.disabled=false;
+  },250);
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+/* ── Confetti / Fireworks ────────────────────────────────── */
+function fireworks(){
+  const cv=document.createElement('canvas');
+  cv.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:700;';
+  document.body.appendChild(cv);
+  const ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#7c3aed','#22d3ee','#f59e0b','#10b981','#a78bfa','#ffffff','#ef4444'];
+  const pcs=Array.from({length:180},()=>({x:cv.width/2,y:cv.height/2,r:Math.random()*7+3,c:cols[~~(Math.random()*cols.length)],vx:(Math.random()-.5)*24,vy:(Math.random()-.5)*24-14,g:.42,a:1,rot:Math.random()*360,rs:(Math.random()-.5)*9,sh:Math.random()>.5?0:1}));
+  let fr=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.a-=.01;p.rot+=p.rs;if(p.a<=0)return;ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.c;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);if(!p.sh){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}else ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});
+    if(++fr<240)requestAnimationFrame(draw);else cv.remove();
+  }
+  draw();
+}
+
+/* ── Mouse parallax on orbs ──────────────────────────────── */
+window.addEventListener('mousemove',e=>{
+  const cx=innerWidth/2,cy=innerHeight/2,dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+  document.querySelectorAll('.orb').forEach((o,i)=>{const f=(i+1)*10;o.style.transform=`translateX(${dx*f}px) translateY(${dy*f}px)`;});
+},{passive:true});
+</script>
+</body>
+</html>

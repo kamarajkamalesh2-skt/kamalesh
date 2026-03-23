@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduNova — My Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060f;--surface:#0d0d1e;--card:#131325;--card2:#1a1a30;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--accent:#7c3aed;--accent2:#a78bfa;--cyan:#22d3ee;--green:#10b981;--gold:#f59e0b;--red:#ef4444;--text:#eeeeff;--muted:#7070a0;--muted2:#9090c0;--grad:linear-gradient(135deg,#7c3aed,#22d3ee);--r:14px;--shadow:0 20px 60px rgba(124,58,237,.16)}
+html{scrollbar-width:thin;scrollbar-color:var(--accent) var(--surface)}
+html::-webkit-scrollbar{width:5px}html::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;cursor:none;display:flex}
+h1,h2,h3{font-family:'Cormorant Garamond',serif;line-height:1.15}
+a{text-decoration:none;color:inherit}
+
+/* Cursor */
+.cr,.cd{position:fixed;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cr{width:36px;height:36px;border:1.5px solid var(--accent2);opacity:.55;transition:transform .15s}
+.cd{width:7px;height:7px;background:var(--accent2)}
+
+/* Scroll bar */
+#sp{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:300;width:0%;transition:width .08s}
+
+/* ═══ SIDEBAR ═══════════════════════════════════════════════ */
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 1.1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:.6rem .8rem;margin-bottom:1.8rem}
+.sb-section{font-size:.65rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;padding:.4rem .8rem;margin-bottom:.4rem;margin-top:.8rem}
+.sb-item{display:flex;align-items:center;gap:.72rem;padding:.72rem .9rem;border-radius:10px;color:var(--muted2);font-size:.87rem;font-weight:500;transition:background .25s,color .25s;cursor:pointer;margin-bottom:.1rem}
+.sb-item:hover,.sb-item.on{background:rgba(124,58,237,.13);color:var(--text)}
+.sb-item.on{border-left:2.5px solid var(--accent)}
+.sb-ico{font-size:.95rem;width:20px;text-align:center;flex-shrink:0}
+.sb-bot{margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--border)}
+.sb-logout{display:flex;align-items:center;gap:.72rem;padding:.72rem .9rem;border-radius:10px;color:var(--red);font-size:.87rem;font-weight:500;transition:background .25s;cursor:pointer}
+.sb-logout:hover{background:rgba(239,68,68,.1)}
+
+/* ═══ MAIN ══════════════════════════════════════════════════ */
+.main{flex:1;min-height:100vh;padding:2.2rem 2.5rem;overflow-y:auto}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.2rem;flex-wrap:wrap;gap:1rem}
+.tb-greeting h1{font-size:1.9rem;margin-bottom:.22rem}
+.tb-greeting p{font-size:.87rem;color:var(--muted2)}
+.tb-right{display:flex;align-items:center;gap:1rem}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.05rem;color:#fff;flex-shrink:0}
+
+/* Status badge */
+.badge{display:inline-flex;align-items:center;gap:.4rem;padding:.38rem 1.1rem;border-radius:50px;font-size:.76rem;font-weight:700;letter-spacing:.04em}
+.b-pending{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.32);color:#fbbf24}
+.b-under-review{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.32);color:var(--cyan)}
+.b-accepted{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.32);color:var(--green)}
+.b-rejected{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.32);color:var(--red)}
+
+/* KPI row */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1.2rem;margin-bottom:2rem}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1.6rem;position:relative;overflow:hidden;transition:transform .35s,box-shadow .35s,border-color .35s}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--grad)}
+.kpi:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:rgba(124,58,237,.28)}
+.kpi-ico{font-size:1.6rem;margin-bottom:.8rem}
+.kpi-lbl{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.28rem}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:900;color:var(--text);line-height:1.1}
+.kpi-val.sm{font-size:1rem;font-family:'Outfit',sans-serif;font-weight:600}
+
+/* 2-col grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+@media(max-width:900px){.g2{grid-template-columns:1fr}}
+
+/* Panel */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem}
+.p-title{font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.4rem;display:flex;align-items:center;gap:.5rem}
+
+/* Detail table */
+.dtab{width:100%;border-collapse:collapse}
+.dtab tr{border-bottom:1px solid var(--border)}
+.dtab tr:last-child{border:none}
+.dtab td{padding:.62rem 0;font-size:.87rem;vertical-align:top}
+.dtab td:first-child{color:var(--muted);width:44%;font-size:.78rem;padding-right:.6rem}
+.dtab td:last-child{color:var(--text);font-weight:500}
+
+/* Timeline */
+.tl{display:flex;flex-direction:column;gap:0}
+.tl-r{display:flex;gap:1rem;position:relative}
+.tl-r:not(:last-child)::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:1.5px;background:var(--border)}
+.tl-n{width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .4s}
+.tl-n.done{background:var(--green);border-color:var(--green);color:#fff}
+.tl-n.cur{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.22);animation:tlp 1.6s ease-in-out infinite}
+@keyframes tlp{0%,100%{box-shadow:0 0 0 4px rgba(124,58,237,.22)}50%{box-shadow:0 0 0 9px rgba(124,58,237,.08)}}
+.tl-body{padding-bottom:1.4rem}
+.tl-body h4{font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;margin-bottom:.18rem}
+.tl-body p{font-size:.78rem;color:var(--muted)}
+.tl-n.done~.tl-body h4,.tl-n.cur~.tl-body h4{color:var(--text)}
+
+/* Download section */
+.dl-area{display:flex;flex-direction:column;gap:1rem}
+.dl-btn{display:inline-flex;align-items:center;gap:.6rem;padding:.88rem 2rem;background:linear-gradient(135deg,#dc2626,#7c3aed);border:none;border-radius:50px;color:#fff;font-family:'Outfit',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;text-decoration:none;transition:transform .3s,box-shadow .3s;width:fit-content;letter-spacing:.02em}
+.dl-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(124,58,237,.42)}
+.dl-hint{font-size:.78rem;color:var(--muted);line-height:1.6}
+.app-id-chip{display:inline-block;font-family:'Courier New',monospace;font-size:.88rem;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.28);border-radius:6px;padding:.18rem .6rem;color:var(--accent2);font-weight:700}
+
+/* SOP box */
+.sop-box{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;font-size:.87rem;color:var(--muted2);line-height:1.82;max-height:150px;overflow-y:auto}
+.sop-box::-webkit-scrollbar{width:4px}.sop-box::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+/* Responsive */
+@media(max-width:768px){.sidebar{display:none}.main{padding:1.4rem}}
+</style>
+</head>
+<body>
+<div class="cr" id="cr"></div>
+<div class="cd" id="cd"></div>
+<div id="sp"></div>
+
+<!-- ══ SIDEBAR ════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-logo">EduNova</div>
+  <div class="sb-section">Main Menu</div>
+  <a href="/dashboard" class="sb-item on"><span class="sb-ico">🏠</span> Dashboard</a>
+  <a href="/dashboard" class="sb-item"><span class="sb-ico">📋</span> My Application</a>
+  <a href="/dashboard" class="sb-item"><span class="sb-ico">📄</span> Documents</a>
+  <a href="/dashboard" class="sb-item"><span class="sb-ico">🔔</span> Notifications</a>
+  <div class="sb-section">Support</div>
+  <a href="/dashboard" class="sb-item"><span class="sb-ico">❓</span> Help & FAQ</a>
+  <a href="/dashboard" class="sb-item"><span class="sb-ico">💬</span> Contact Admissions</a>
+  <div class="sb-bot">
+    <a href="/logout" class="sb-logout"><span class="sb-ico">🚪</span> Sign Out</a>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="tb-greeting">
+      <h1>Hello, {{ student.first_name }}! 👋</h1>
+      <p>Here is your EduNova admission overview — Academic Year 2025–26</p>
+    </div>
+    <div class="tb-right">
+      {% set st = student.status %}
+      {% if st == 'Pending' %}
+        <span class="badge b-pending">⏳ Pending</span>
+      {% elif st == 'Under Review' %}
+        <span class="badge b-under-review">🔍 Under Review</span>
+      {% elif st == 'Accepted' %}
+        <span class="badge b-accepted">✅ Accepted</span>
+      {% else %}
+        <span class="badge b-rejected">❌ Rejected</span>
+      {% endif %}
+      <div class="avatar">{{ student.first_name[0] }}{{ student.last_name[0] }}</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-ico">🎫</div>
+      <div class="kpi-lbl">Application ID</div>
+      <div class="kpi-val sm">{{ student.application_id }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-ico">📚</div>
+      <div class="kpi-lbl">Program</div>
+      <div class="kpi-val sm">{{ student.program }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-ico">🎓</div>
+      <div class="kpi-lbl">Degree Level</div>
+      <div class="kpi-val sm">{{ student.degree_level }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-ico">📊</div>
+      <div class="kpi-lbl">12th Marks</div>
+      <div class="kpi-val">{{ student.marks_12 }}%</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Personal + Academic -->
+  <div class="g2">
+    <div class="panel">
+      <div class="p-title">👤 Personal Information</div>
+      <table class="dtab">
+        <tr><td>Full Name</td><td>{{ student.first_name }} {{ student.last_name }}</td></tr>
+        <tr><td>Email</td><td>{{ student.email }}</td></tr>
+        <tr><td>Phone</td><td>{{ student.phone }}</td></tr>
+        <tr><td>Date of Birth</td><td>{{ student.dob }}</td></tr>
+        <tr><td>Gender</td><td>{{ student.gender }}</td></tr>
+        <tr><td>Address</td><td>{{ student.address }}</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="p-title">🎓 Academic Details</div>
+      <table class="dtab">
+        <tr><td>10th School</td><td>{{ student.school_10 }}</td></tr>
+        <tr><td>10th Marks</td><td>{{ student.marks_10 }}%</td></tr>
+        <tr><td>12th College</td><td>{{ student.school_12 }}</td></tr>
+        <tr><td>12th Marks</td><td>{{ student.marks_12 }}%</td></tr>
+        <tr><td>Entrance Exam</td><td>{{ student.exam_type or 'None' }}</td></tr>
+        <tr><td>Score / Rank</td><td>{{ student.exam_score or '—' }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Row 2: Timeline + Download -->
+  <div class="g2">
+    <div class="panel">
+      <div class="p-title">📅 Application Timeline</div>
+      <div class="tl">
+        <div class="tl-r">
+          <div class="tl-n done">✓</div>
+          <div class="tl-body"><h4>Application Received</h4><p>Your application was successfully submitted to EduNova College.</p></div>
+        </div>
+        <div class="tl-r">
+          {% if student.status in ['Under Review','Accepted','Rejected'] %}
+            <div class="tl-n done">✓</div>
+          {% elif student.status == 'Pending' %}
+            <div class="tl-n cur">2</div>
+          {% else %}
+            <div class="tl-n">2</div>
+          {% endif %}
+          <div class="tl-body"><h4>Document Verification</h4><p>Our admissions team reviews your academic credentials.</p></div>
+        </div>
+        <div class="tl-r">
+          {% if student.status in ['Accepted','Rejected'] %}
+            <div class="tl-n done">✓</div>
+          {% elif student.status == 'Under Review' %}
+            <div class="tl-n cur">3</div>
+          {% else %}
+            <div class="tl-n">3</div>
+          {% endif %}
+          <div class="tl-body"><h4>Interview / Entrance Test</h4><p>You may be contacted for an interview or entrance assessment.</p></div>
+        </div>
+        <div class="tl-r">
+          {% if student.status in ['Accepted','Rejected'] %}
+            <div class="tl-n done">✓</div>
+          {% else %}
+            <div class="tl-n">4</div>
+          {% endif %}
+          <div class="tl-body"><h4>Final Decision</h4><p>Admission decision communicated via email and this portal.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-title">⬇ Download Receipt</div>
+      <div class="dl-area">
+        <p style="font-size:.88rem;color:var(--muted2)">Download your official EduNova admission receipt as a PDF. This document serves as proof of your application submission.</p>
+        <table class="dtab" style="margin:.4rem 0">
+          <tr><td>Applied On</td><td>{{ student.created_at.strftime('%d %B %Y') if student.created_at else 'N/A' }}</td></tr>
+          <tr><td>Hostel</td><td>{{ student.hostel or 'Not specified' }}</td></tr>
+          <tr><td>Heard From</td><td>{{ student.heard_from or '—' }}</td></tr>
+        </table>
+        <a href="/download_pdf/{{ student.application_id }}" class="dl-btn">
+          ⬇ Download PDF Receipt
+        </a>
+        <p class="dl-hint">Save your Application ID for all future correspondence:<br>
+          <span class="app-id-chip">{{ student.application_id }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP -->
+  <div class="panel" style="margin-bottom:2rem">
+    <div class="p-title">✍ Statement of Purpose</div>
+    <div class="sop-box">{{ student.sop }}</div>
+  </div>
+
+  {% if student.achievements %}
+  <div class="panel" style="margin-bottom:2rem">
+    <div class="p-title">🏆 Achievements & Extra-Curriculars</div>
+    <p style="font-size:.88rem;color:var(--muted2);line-height:1.8">{{ student.achievements }}</p>
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+/* cursor */
+const cr=document.getElementById('cr'),cd=document.getElementById('cd');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cd.style.left=mx+'px';cd.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(a)})();
+document.querySelectorAll('a,.kpi,.dl-btn,.sb-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cr.style.transform='translate(-50%,-50%) scale(1.9)');
+  el.addEventListener('mouseleave',()=>cr.style.transform='translate(-50%,-50%) scale(1)');
+});
+/* scroll bar */
+const sp=document.getElementById('sp');
+document.querySelector('.main').addEventListener('scroll',e=>{const m=e.target;sp.style.width=(m.scrollTop/(m.scrollHeight-m.clientHeight)*100)+'%';},{passive:true});
+</script>
+</body>
+</html>
